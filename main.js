@@ -1,24 +1,4 @@
-const sounds = [
-  './sounds/dewford_town.mp3',
-  './sounds/diving.mp3',
-  './sounds/fortree_city.mp3',
-  './sounds/lilycove_city.mp3',
-  './sounds/littleroot_town.mp3',
-  './sounds/mt_chimney.mp3',
-  './sounds/oceanic.mp3',
-  './sounds/oldale_town.mp3',
-  './sounds/petalburg.mp3',
-  './sounds/route_101.mp3',
-  './sounds/route_104.mp3',
-  './sounds/route_110.mp3',
-  './sounds/route_113.mp3',
-  './sounds/route_119.mp3',
-  './sounds/route_120.mp3',
-  './sounds/rustboro.mp3',
-  './sounds/slateport.mp3',
-  './sounds/verdanturf.mp3',
-  './sounds/victory.mp3'
-]
+// make sure sounds is defined
 
 const streetEl = document.getElementById('street');
 const startBtn = document.getElementById('startBtn');
@@ -52,6 +32,7 @@ async function reverseGeocode(lat, lon) {
 }
 
 // Convert file name to sentence case
+// TODO add gen
 function formatSongName(filePath) {
   const parts = filePath.split('/').pop().split('.')[0].split('_');
   const formatted = parts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');

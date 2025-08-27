@@ -1,0 +1,5 @@
+- [x] Gen 1 - Fire Red
+- [x] Gen 2 - Heart Gold
+- [x] Gen 3 - Emerald
+- [x] Gen 4 - Diamond
+- [x] Gen 5 - Black / White
