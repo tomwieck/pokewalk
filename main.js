@@ -1,13 +1,3 @@
-
-const streetEl = document.getElementById('street');
-const startBtn = document.getElementById('startBtn');
-const manualBtn = document.getElementById('manualChangeBtn');
-
-let prevStreet = null;
-let audio = new Audio();
-audio.loop = true; // Make MP3 loop continuously
-let watchId = null;
-
 const sounds = [
   './sounds/dewford_town.mp3',
   './sounds/diving.mp3',
@@ -30,13 +20,42 @@ const sounds = [
   './sounds/victory.mp3'
 ]
 
-// Sample streets for manual testing
-const testStreets = ['Main St', 'Broadway', '1st Avenue', 'Elm Street'];
+const streetEl = document.getElementById('street');
+const startBtn = document.getElementById('startBtn');
+const currentSongEl = document.getElementById('currentSong');
 
-// Reverse geocode function (simulated for manual test)
+let prevStreet = null;
+let audio = new Audio();
+audio.loop = true; // MP3 loops continuously
+let watchId = null;
+
+// Leaflet map setup (unchanged)
+let map = L.map('map').setView([0, 0], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+let marker = L.marker([0, 0]).addTo(map);
+
+// Reverse geocode function
 async function reverseGeocode(lat, lon) {
-  // On manual test, pick a random street from testStreets
-  return testStreets[Math.floor(Math.random() * testStreets.length)];
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+      { headers: { 'User-Agent': 'BrowserStreetTracker/1.0' } }
+    );
+    const data = await res.json();
+    return data?.address?.road || 'Unknown street';
+  } catch (err) {
+    console.error(err);
+    return 'Error fetching street';
+  }
+}
+
+// Convert file name to sentence case
+function formatSongName(filePath) {
+  const parts = filePath.split('/').pop().split('.')[0].split('_');
+  const formatted = parts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+  return formatted;
 }
 
 // Play a random MP3
@@ -44,6 +63,9 @@ function playRandomSound() {
   const idx = Math.floor(Math.random() * sounds.length);
   audio.src = sounds[idx];
   audio.play().catch(console.error);
+
+  // Update currently playing
+  currentSongEl.textContent = 'Currently Playing: ' + formatSongName(sounds[idx]);
 }
 
 // Stop the current sound
@@ -61,39 +83,33 @@ startBtn.addEventListener('click', () => {
 
   startBtn.disabled = true;
 
-  watchId = navigator.geolocation.watchPosition(async (position) => {
-    const { latitude, longitude } = position.coords;
-    const street = await reverseGeocode(latitude, longitude);
+  watchId = navigator.geolocation.watchPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
 
-    if (street !== prevStreet) {
-      prevStreet = street;
-      streetEl.textContent = street;
-      stopSound();
-      playRandomSound();
+      // Update street
+      const street = await reverseGeocode(latitude, longitude);
+      if (street !== prevStreet) {
+        prevStreet = street;
+        streetEl.textContent = street;
+        stopSound();
+        playRandomSound();
+      }
+
+      // Update map
+      marker.setLatLng([latitude, longitude]);
+      map.setView([latitude, longitude]);
+    },
+    (error) => {
+      console.error(error);
+      alert('Error getting location: ' + error.message);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 5000,
     }
-  }, (error) => {
-    console.error(error);
-    alert('Error getting location: ' + error.message);
-  }, {
-    enableHighAccuracy: true,
-    maximumAge: 1000,
-    timeout: 5000,
-  });
-});
-
-// Manual street change for testing
-manualBtn.addEventListener('click', async () => {
-  // Pick a different street than the current one
-  let newStreet;
-  do {
-    newStreet = testStreets[Math.floor(Math.random() * testStreets.length)];
-  } while (newStreet === prevStreet);
-
-  prevStreet = newStreet;
-  streetEl.textContent = newStreet;
-
-  stopSound();
-  playRandomSound();
+  );
 });
 
 // Stop tracking and sound on page unload

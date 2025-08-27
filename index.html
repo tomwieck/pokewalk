@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Street Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+
   <style>
     body {
       background-color: #111;
@@ -11,16 +19,61 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
       margin: 0;
+      padding: 20px;
+      text-align: center;
     }
-    h1 { color: #fff; }
+
+    h1 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #street {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+
+    #currentSong {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #ff0;
+    }
+
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 10px;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background-color: #0f0;
+      color: #111;
+      font-weight: bold;
       cursor: pointer;
+      width: 80%;
+      max-width: 300px;
+      transition: background-color 0.2s;
+    }
+
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #6f6;
+    }
+
+    #map {
+      width: 100%;
+      max-width: 600px;
+      height: 300px;
+      margin-top: 20px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -28,8 +81,16 @@
   <h1>Current Street:</h1>
   <div id="street">Detecting...</div>
 
+  <div id="currentSong">Currently Playing: None</div>
+
   <button id="startBtn">Start Tracking</button>
-  <button id="manualChangeBtn">Change Street (Test)</button>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet/dist/leaflet.js"
+  ></script>
 
   <script type="module" src="main.js"></script>
 </body>
